@@ -1,0 +1,26 @@
+initial data contains:
+- activities_*       - tables with predefined exercises
+- machines_*         - tables with informations about supported machines
+ 
+For export you would use tables:
+- visits_vist             - user visit data
+- visits_visitactivity    - corresponding visit exercises with results
+
+
+Visits_visit_activity
+
+# #     visit id VisitsVisit
+# #     activity id FacilitiesAvailableactivity
+# #     scheduled_activity id to FacilitiesAvailablescheduledactivity
+# #     start_time 
+# #     end_time 
+# #     supervised_by 
+# #     instruction 
+# #     supervisor_comments 
+# #     user_comments 
+# #     settings 
+# #     comments 
+# #     results 
+# #     status 
+# #     training_activity id to TrainingsTrainingactivity
+# #     raw_data_file

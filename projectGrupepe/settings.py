@@ -38,12 +38,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    #'corsheaders',
+    "xlwt",
+    'corsheaders',
     'visits',
 ]
 
 MIDDLEWARE = [
-    #'corsheaders.middleware.CorsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -52,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'projectGrupepe.urls'
 
@@ -80,10 +82,10 @@ WSGI_APPLICATION = 'projectGrupepe.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'uyljuvjh',
-        'USER': 'uyljuvjh',
-        'PASSWORD': "0XjJeVYTMKB1b_5UOtc8jLtXkjY9Mp1-" ,
-        'HOST': 'abul.db.elephantsql.com',
+        'NAME': 'webgym_db',
+        'USER': 'postgres',
+        'PASSWORD': "IfoudaZZtsjYrOvK" ,
+        'HOST': 'exporttest.hursmarttouch.com',
         'PORT': '5432',
     }
 }
