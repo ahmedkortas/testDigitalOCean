@@ -1,2 +1,3 @@
 ./project_env
 ./models.py    
+./Pipfile.lock
