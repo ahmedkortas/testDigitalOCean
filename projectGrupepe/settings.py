@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-=z8!_kx6y&z!ql+b+jzsuwjzc%x_-pohmj$*=fmgex00p3-a00'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['huremden.herokuapp.com','127.0.0.1']
 
 
 # Application definition
@@ -54,7 +54,7 @@ MIDDLEWARE = [
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 
-CSRF_TRUSTED_ORIGINS = ['https://*.mydomain.com','http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = ['https://*','http://localhost:3000']
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 524288000000000
 
