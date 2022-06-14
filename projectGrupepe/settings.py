@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-=z8!_kx6y&z!ql+b+jzsuwjzc%x_-pohmj$*=fmgex00p3-a00'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = ['huremden.herokuapp.com','127.0.0.1']
 
 
 # Application definition
@@ -54,7 +54,7 @@ MIDDLEWARE = [
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 
-CSRF_TRUSTED_ORIGINS = ['https://*.mydomain.com','http://localhost:3000']
+CSRF_TRUSTED_ORIGINS = ['https://*','http://localhost:3000']
 
 DATA_UPLOAD_MAX_MEMORY_SIZE = 524288000000000
 
@@ -127,6 +127,8 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATIC_URL = 'static/'
 
