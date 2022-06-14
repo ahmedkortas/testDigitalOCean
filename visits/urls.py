@@ -3,6 +3,11 @@ from . import views
 
 #Urls Configuration
 urlpatterns = [
-    path('', views.vistis_view),
-    path('data', views.visits_view_all_data),
+    path('VisitActivity', views.VisitActivity),
+    # path('data', views.visits_view_all_data),
+    path('excel', views.generateExcelForAVisit),
+    path('users', views.getUsers),
+    path('allVisitsForUser', views.allVisitsForUser),
+    path('VisitActvityAndResults', views.VisitActvityAndResults),
+    path('training', views.tr),
 ]

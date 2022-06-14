@@ -458,7 +458,7 @@ class FacilitiesAvailableactivity(models.Model):
     animation = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     comments = models.TextField(blank=True, null=True)
-    use_in_training = models.BooleanField()
+    use_in_fining = models.BooleanField()
     limit_to_equipment = models.ForeignKey('FacilitiesEquipment', models.DO_NOTHING, blank=True, null=True)
     definition = models.TextField(blank=True, null=True)
     video = models.CharField(max_length=2048, blank=True, null=True)

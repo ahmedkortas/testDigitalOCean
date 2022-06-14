@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-=z8!_kx6y&z!ql+b+jzsuwjzc%x_-pohmj$*=fmgex00p3-a00
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1']
 
 
 # Application definition
@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    "xlwt",
     'corsheaders',
     'visits',
 ]
@@ -54,6 +53,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 CORS_ALLOW_ALL_ORIGINS = True
+
+CSRF_TRUSTED_ORIGINS = ['https://*.mydomain.com','http://localhost:3000']
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 524288000000000
 
 ROOT_URLCONF = 'projectGrupepe.urls'
 
