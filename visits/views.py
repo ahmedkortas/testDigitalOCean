@@ -535,69 +535,139 @@ def extract_activity_name():
 def write_the_col(training_program):
     final_col = []
     for activity in training_program:
-        for j in range(0,3):
-            setsCounter=j+1
-            final_col+= [activity[0]+' Prescribed Load  '+'['+str(activity[1])+']'+' set '+str(setsCounter) ,activity[0]+' Load '+'['+str(activity[1])+']'+' set '+str(setsCounter) ,activity[0]+' Prescribed Reps '+'['+str(activity[1])+']'+' set '+str(setsCounter) ,activity[0]+' Reps '+'['+str(activity[1])+']'+' set '+str(setsCounter) ]
-        final_col+= [activity[0]+' Total load '+'['+str(activity[1])+']']
-        final_col+= [activity[0]+' Total Prescribed load '+'['+str(activity[1])+']']
+        if activity[1] != 'W':   
+            for j in range(0,3):
+                setsCounter=j+1
+                final_col+= [activity[0]+' Prescribed Load '+'set '+str(setsCounter) +'['+str(activity[1])+']',activity[0]+' Load '+'set '+str(setsCounter) +'['+str(activity[1])+']',activity[0]+' Prescribed Reps '+'set '+str(setsCounter) +'['+str(activity[1])+']',activity[0]+' Reps '+'set '+str(setsCounter) +'['+str(activity[1])+']']
+            final_col+= [activity[0]+' Total load '+'['+str(activity[1])+']']
+            final_col+= [activity[0]+' Total Prescribed load '+'['+str(activity[1])+']']
+        else:
+            final_col+= [activity[0]+' Prescribed time '+'[min]']
+            final_col+= [activity[0]+' Time '+'[min]']
+            final_col+= [activity[0]+' Prescribed Power '+'['+str(activity[1])+']']
+            final_col+= [activity[0]+' Power '+'['+str(activity[1])+']']
     return final_col
 
 #will add the data into an object of arrays for the data frame
 # keys : visit ID, user name ,training program, login, duration, training saission
-def addVisitsToArray(visits,objOfKeys,training_program):
-    i=0
-    for visit_user in visits:
-        for visit in visits[visit_user]:   
-            if(visit['training_program']!=training_program):
+def addVisitsToArray(visits,objOfKeys):
+    for visit in visits:
+        objOfKeys['visit ID'].append(visit['id'])
+        objOfKeys['user name'].append(visit['user'])
+        objOfKeys['training program'].append(visit['training_program'])
+        login = visit['login']
+        logout = visit['logout']
+        login=datetime.strptime(login, '%Y-%m-%dT%H:%M:%S.%fZ')
+        logout=datetime.strptime(logout, '%Y-%m-%dT%H:%M:%S.%fZ')
+        objOfKeys['login'].append(login)
+        duration =str(logout-login)
+
+        if (duration.split(".")[0].find(",")!=-1 ):
+            duration = str(duration.split(".")[0])
+        else:    
+            duration=duration.split(".")[0].split(":")
+            duration=int(duration[0])*60+int(duration[1])
+        objOfKeys['duration'].append(duration)
+        # objOfKeys['duration'].append()
+        objOfKeys['training saission'].append(visit['training_saission'])
+        for results in visit['results']:
+            settings=results['settings']               
+            res = results['results']
+            total_load = 0
+            total_prescribed_load = 0
+            if('sets' not in res) or ('units' not in settings):
                 continue
             else:
-                i+=1
-                login = visit['login']
-                logout = visit['logout']
-                login=datetime.strptime(login, '%Y-%m-%dT%H:%M:%S.%fZ')
-                logout=datetime.strptime(logout, '%Y-%m-%dT%H:%M:%S.%fZ')
-                # "duration": "00:05:00"
-                duration=logout-login
-                duration=str(duration)
-                objOfKeys['visit ID'].append(visit['id'])
-                objOfKeys['user name'].append(visit_user)
-                objOfKeys['training program'].append(visit['training_program'])
-                objOfKeys['login'].append(visit['login'])
-                objOfKeys['duration'].append(duration)
-                objOfKeys['training saission'].append(visit['training_saission'])
-                for results in visit['results']:
-                    settings=results['settings']               
-                    res = json.loads(results['results'])
-                    total_load = 0
-                    total_prescribed_load = 0
-                    if('sets' not in res) or ('units' not in settings):
-                        continue
-                    else:
                         #inserting the data 
-                        number_of_sets=3
-                        for i in range(0,number_of_sets):
-                            if(i>=len(res['sets'])):
-                                objOfKeys[results['activity']+' Load '+'['+str(settings['units'])+']'+' set '+str(i+1)].append("")
-                                objOfKeys[results['activity']+' Reps '+'['+str(settings['units'])+']'+' set '+str(i+1)].append("")
-                            else:
-                                total_load+=int(res['sets'][i]['load'])*int(res['sets'][i]['reps'])
-                                objOfKeys[results['activity']+' Load '+'['+str(settings['units'])+']'+' set '+str(i+1)].append(res['sets'][i]['load'])
-                                objOfKeys[results['activity']+' Reps '+'['+str(settings['units'])+']'+' set '+str(i+1)].append(res['sets'][i]['reps'])
-                            if(i<len(settings['sets'])):
-                                objOfKeys[results['activity']+' Prescribed Load  '+'['+str(settings['units'])+']'+' set '+str(i+1)].append(settings['sets'][i]['load'])
-                                objOfKeys[results['activity']+' Prescribed Reps '+'['+str(settings['units'])+']'+' set '+str(i+1)].append(settings['sets'][i]['reps'])
-                                total_prescribed_load+=int(settings['sets'][i]['load'])*int(settings['sets'][i]['reps'])
-                            else:
-                                objOfKeys[results['activity']+' Prescribed Load  '+'['+str(settings['units'])+']'+' set '+str(i+1)].append("")
-                                objOfKeys[results['activity']+' Prescribed Reps '+'['+str(settings['units'])+']'+' set '+str(i+1)].append("")
-                        objOfKeys[results['activity']+' Total load '+'['+str(settings['units'])+']'].append(total_load)
-                        objOfKeys[results['activity']+' Total Prescribed load '+'['+str(settings['units'])+']'].append(total_prescribed_load)
-                for obj in objOfKeys:
-                    if(obj=='visit ID') or (obj=='user name') or (obj=='training program') or (obj=='login') or (obj=='duration') or (obj=='training saission'):
-                        continue
-                    elif len(objOfKeys[obj])<len(objOfKeys['visit ID']):
-                        objOfKeys[obj].append("")                
+                number_of_sets=3
+                for i in range(0,number_of_sets):
+                    if(i>=len(res['sets'])):
+                        objOfKeys[results['activity']+' Load '+'set '+str(i+1)+'['+str(settings['units'])+']'].append("")
+                        objOfKeys[results['activity']+' Reps '+'set '+str(i+1)+'['+str(settings['units'])+']'].append("")
+                    else:
+                        total_load+=int(res['sets'][i]['load'])*int(res['sets'][i]['reps'])
+                        objOfKeys[results['activity']+' Load '+'set '+str(i+1)+'['+str(settings['units'])+']'].append(res['sets'][i]['load'])
+                        objOfKeys[results['activity']+' Reps '+'set '+str(i+1)+'['+str(settings['units'])+']'].append(res['sets'][i]['reps'])
+                    if(i<len(settings['sets'])):
+                        objOfKeys[results['activity']+' Prescribed Load '+'set '+str(i+1)+'['+str(settings['units'])+']'].append(settings['sets'][i]['load'])
+                        objOfKeys[results['activity']+' Prescribed Reps '+'set '+str(i+1)+'['+str(settings['units'])+']'].append(settings['sets'][i]['reps'])
+                        total_prescribed_load+=int(settings['sets'][i]['load'])*int(settings['sets'][i]['reps'])
+                    else:
+                        objOfKeys[results['activity']+' Prescribed Load '+'set '+str(i+1)+'['+str(settings['units'])+']'].append("")
+                        objOfKeys[results['activity']+' Prescribed Reps '+'set '+str(i+1)+'['+str(settings['units'])+']'].append("")
+                objOfKeys[results['activity']+' Total load '+'['+str(settings['units'])+']'].append(total_load)
+                objOfKeys[results['activity']+' Total Prescribed load'+' ['+str(settings['units'])+']'].append(total_prescribed_load)
+        max_len = 0
+        for key in objOfKeys:
+            if len(objOfKeys[key])>max_len:
+                max_len = len(objOfKeys[key])
+        for key in objOfKeys:
+            while len(objOfKeys[key])<max_len:
+                objOfKeys[key].append("")
+            print(key,len(objOfKeys[key]))
     return objOfKeys
+
+
+
+
+
+
+
+
+
+    # i=0
+    # for visit_user in visits:
+    #     for visit in visits[visit_user]:   
+    #         if(visit['training_program']!=training_program):
+    #             continue
+    #         else:
+    #             i+=1
+    #             login = visit['login']
+    #             logout = visit['logout']
+    #             login=datetime.strptime(login, '%Y-%m-%dT%H:%M:%S.%fZ')
+    #             logout=datetime.strptime(logout, '%Y-%m-%dT%H:%M:%S.%fZ')
+    #             # "duration": "00:05:00"
+    #             duration=logout-login
+    #             duration=str(duration)
+    #             objOfKeys['visit ID'].append(visit['id'])
+    #             objOfKeys['user name'].append(visit_user)
+    #             objOfKeys['training program'].append(visit['training_program'])
+    #             objOfKeys['login'].append(visit['login'])
+    #             objOfKeys['duration'].append(duration)
+    #             objOfKeys['training saission'].append(visit['training_saission'])
+    #             for results in visit['results']:
+    #                 settings=results['settings']               
+    #                 res = json.loads(results['results'])
+    #                 total_load = 0
+    #                 total_prescribed_load = 0
+    #                 if('sets' not in res) or ('units' not in settings):
+    #                     continue
+    #                 else:
+    #                     #inserting the data 
+    #                     number_of_sets=3
+    #                     for i in range(0,number_of_sets):
+    #                         if(i>=len(res['sets'])):
+    #                             objOfKeys[results['activity']+' Load '+' set '+str(i+1)+' ['+str(settings['units'])+']'].append("")
+    #                             objOfKeys[results['activity']+' Reps '+' set '+str(i+1)+' ['+str(settings['units'])+']'].append("")
+    #                         else:
+    #                             total_load+=int(res['sets'][i]['load'])*int(res['sets'][i]['reps'])
+    #                             objOfKeys[results['activity']+' Load '+' set '+str(i+1)+' ['+str(settings['units'])+']'].append(res['sets'][i]['load'])
+    #                             objOfKeys[results['activity']+' Reps '+' set '+str(i+1)+' ['+str(settings['units'])+']'].append(res['sets'][i]['reps'])
+    #                         if(i<len(settings['sets'])):
+    #                             objOfKeys[results['activity']+' Prescribed Load  '+' set '+str(i+1)+' ['+str(settings['units'])+']'].append(settings['sets'][i]['load'])
+    #                             objOfKeys[results['activity']+' Prescribed Reps '+' set '+str(i+1)+' ['+str(settings['units'])+']'].append(settings['sets'][i]['reps'])
+    #                             total_prescribed_load+=int(settings['sets'][i]['load'])*int(settings['sets'][i]['reps'])
+    #                         else:
+    #                             objOfKeys[results['activity']+' Prescribed Load  '+' set '+str(i+1)+' ['+str(settings['units'])+']'].append("")
+    #                             objOfKeys[results['activity']+' Prescribed Reps '+' set '+str(i+1)+' ['+str(settings['units'])+']'].append("")
+    #                     objOfKeys[results['activity']+' Total load '+' ['+str(settings['units'])+']'].append(total_load)
+    #                     objOfKeys[results['activity']+' Total Prescribed load '+' ['+str(settings['units'])+']'].append(total_prescribed_load)
+    #             for obj in objOfKeys:
+    #                 if(obj=='visit ID') or (obj=='user name') or (obj=='training program') or (obj=='login') or (obj=='duration') or (obj=='training saission'):
+    #                     continue
+    #                 elif len(objOfKeys[obj])<len(objOfKeys['visit ID']):
+    #                     objOfKeys[obj].append("")                
+    # return objOfKeys
 
 
 def queryVisitsData(usersFilter,TrainingSessions):
@@ -694,99 +764,135 @@ def tr(request):
         users=['all']
     if(len(trainingSessions)==0):
         trainingSessions=['all']
+
     newArrHolders = queryVisitsData(users,trainingSessions)
 
     
+    training_saission_list = {}
+    for user in newArrHolders:
+        for visit in newArrHolders[user] :
+            key = 'training saission ' + str(visit['training_saission'])
+            if key not in training_saission_list:
+                training_saission_list[key] = []
+            training_saission_list[key].append(visit)
+
+
+    training_activity_list = {}
     
-    trainingProgramHolder=[]
-    for user in newArrHolders:
-        for visit in newArrHolders[user]:
-            if visit['training_program'] not in trainingProgramHolder:
-                trainingProgramHolder.append(visit['training_program'])
-    trainingProgramHolder.sort()
-
-    sheetName ={}
-            
-    training_program_activity_holder={}
-    for user in newArrHolders:
-        for visit in newArrHolders[user]:
-            if visit['training_program'] not in training_program_activity_holder:
-                training_program_activity_holder[visit['training_program']]=[]
+    for training_saission in training_saission_list:
+        activity_list = {}
+        training_activity_list[training_saission] = []
+        for visit in training_saission_list[training_saission]:
             for result in visit['results']:
-                if result['activity'] not in training_program_activity_holder[visit['training_program']]:
-                    #transform result['settings'] to json
-                    # if the sets unit is in ['kg','lb','cm','m','km','mi','in','ft']
-                    #then add the activity
-                    if 'settings' in result:
-                        result['settings']= json.loads(result['settings'])
-                        if 'units' in result['settings']:
-                            if result['settings']['units'] in ['kg','lb','cm','m','km','mi','in','ft','W']:
-                                trAct= []
-                                trAct.append(result['activity'])
-                                trAct.append(result['settings']['units'])
-                                boolean_options = True
-                                for act in training_program_activity_holder[visit['training_program']]:
-                                    if act[0] == result['activity'] and act[1] == result['settings']['units']:
-                                        boolean_options = False
-                                if boolean_options:
-                                    training_program_activity_holder[visit['training_program']].append(trAct)
-    tpah={}
-    for training_program in training_program_activity_holder:
-        if training_program_activity_holder[training_program] !=[]:
-            tpah[training_program]=training_program_activity_holder[training_program]
-
-    for training_program in training_program_activity_holder:
-        name = training_program
-        name = name.replace("\\"," ")
-        name = name.replace("/"," ")
-        name = name.replace("*"," ")
-        name = name.replace("?"," ")
-        name = name.replace(":"," ")
-        name = name.replace("["," ")
-        name = name.replace("]"," ")
-        name = name.replace("."," ")
-        name = name.replace("-"," ")
-        name = name.replace("_"," ")
-        for key in sheetName.keys():
-            if name.lower() == key.lower() or name.lower() == sheetName[key].lower():
-                name +=" dup"
-        if len(name)>30:
-            arr=name.split(' ')
-            name=''
-            for el in arr:
-                if el == "":
+                result['settings']= json.loads(result['settings'])
+                result['results']= json.loads(result['results'])        
+                activity_and_units = []
+                if('units' not in result['settings']):
                     continue
+                activity_and_units.append(result['activity'])
+                activity_and_units.append(result['settings']['units'])
+                if(len(training_activity_list[training_saission])==0):
+                    training_activity_list[training_saission].append(activity_and_units)
+                    activity_list[activity_and_units[0]]=activity_and_units[1]
+                elif(activity_and_units[0] not in activity_list ):
+                    training_activity_list[training_saission].append(activity_and_units)
+                    activity_list[activity_and_units[0]]=activity_and_units[1]
                 else:
-                    name+=el[0]
-        sheetName[training_program] = name
+                    if(activity_list[activity_and_units[0]]!=activity_and_units[1]):
+                        training_activity_list[training_saission].append(activity_and_units)
+                        activity_list[activity_and_units[0]]=activity_and_units[1]
 
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename=visits.xlsx'
     default_col =["visit ID","user name","training program","login","duration","training saission"]
 
+
     with BytesIO() as b:
         # Use the StringIO object as the filehandle.
         writer = pd.ExcelWriter(b, engine='openpyxl')
-        dfHolder=[]
-        print(sheetName)
-        for training_program in sheetName:
-            if [] == (training_program_activity_holder[training_program]):
-                continue
-            else:
-                arr=[]
-                arr = default_col + write_the_col(training_program_activity_holder[training_program])
-                for i in range(0,len(training_program_activity_holder[training_program])):
-                    training_program_activity_holder[training_program][i] = training_program_activity_holder[training_program][i][0]
-                obj ={}
-                for key in arr:
-                    obj[key]=[]
-                df = pd.DataFrame(addVisitsToArray(newArrHolders,obj,training_program))
-                df.style.set_properties(**{'width': '3000px'})
-                df.to_excel(writer, sheet_name=sheetName[training_program], index=False)
+        for saission in training_saission_list:
+            col_holder=[]
+            col_holder=default_col+write_the_col(training_activity_list[saission])
+            obj ={}
+            for key in col_holder:
+                obj[key] = []
+            df = pd.DataFrame(addVisitsToArray(training_saission_list[saission],obj)) 
+                #create a Panda dataframe from the data
+                
+                # Write the dataframe to the excel object.
+            df.to_excel(writer, sheet_name=saission, index=False)
+
         writer.save()
         b.seek(0)
         response.write(b.read())
     return response
+            
+        
+
+    # trainingProgramHolder=[]
+    # for user in newArrHolders:
+    #     for visit in newArrHolders[user]:
+    #         if visit['training_program'] not in trainingProgramHolder:
+    #             trainingProgramHolder.append(visit['training_program'])
+    # trainingProgramHolder.sort()
+
+    # sheetName ={}
+            
+    # training_program_activity_holder={}
+    # for user in newArrHolders:
+    #     for visit in newArrHolders[user]:
+    #         if visit['training_program'] not in training_program_activity_holder:
+    #             training_program_activity_holder[visit['training_program']]=[]
+    #         for result in visit['results']:
+    #             if result['activity'] not in training_program_activity_holder[visit['training_program']]:
+    #                 #transform result['settings'] to json
+    #                 # if the sets unit is in ['kg','lb','cm','m','km','mi','in','ft']
+    #                 #then add the activity
+    #                 if 'settings' in result:
+    #                     result['settings']= json.loads(result['settings'])
+    #                     if 'units' in result['settings']:
+    #                         if result['settings']['units'] in ['kg','lb','cm','m','km','mi','in','ft','W']:
+    #                             trAct= []
+    #                             trAct.append(result['activity'])
+    #                             trAct.append(result['settings']['units'])
+    #                             boolean_options = True
+    #                             for act in training_program_activity_holder[visit['training_program']]:
+    #                                 if act[0] == result['activity'] and act[1] == result['settings']['units']:
+    #                                     boolean_options = False
+    #                             if boolean_options:
+    #                                 training_program_activity_holder[visit['training_program']].append(trAct)
+    # tpah={}
+    # for training_program in training_program_activity_holder:
+    #     if training_program_activity_holder[training_program] !=[]:
+    #         tpah[training_program]=training_program_activity_holder[training_program]
+
+    # for training_program in training_program_activity_holder:
+    #     name = training_program
+    #     name = name.replace("\\"," ")
+    #     name = name.replace("/"," ")
+    #     name = name.replace("*"," ")
+    #     name = name.replace("?"," ")
+    #     name = name.replace(":"," ")
+    #     name = name.replace("["," ")
+    #     name = name.replace("]"," ")
+    #     name = name.replace("."," ")
+    #     name = name.replace("-"," ")
+    #     name = name.replace("_"," ")
+    #     for key in sheetName.keys():
+    #         if name.lower() == key.lower() or name.lower() == sheetName[key].lower():
+    #             name +=" dup"
+    #     if len(name)>30:
+    #         arr=name.split(' ')
+    #         name=''
+    #         for el in arr:
+    #             if el == "":
+    #                 continue
+    #             else:
+    #                 name+=el[0]
+    #     sheetName[training_program] = name
+
+    
+
 
         
 

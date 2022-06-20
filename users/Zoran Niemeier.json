@@ -1,0 +1,212 @@
+[
+  {
+    "id": 1980,
+    "login": "2017-09-18T08:12:41.369007Z",
+    "logout": "2017-09-18T08:59:38.508938Z",
+    "comments": "FCM2: Visit ended by user action.",
+    "user": "Zoran Niemeier",
+    "visit_type": 1,
+    "facility": 3,
+    "training_program": "Test",
+    "results": [
+      {
+        "visit": 1980,
+        "activity": "Twist Left",
+        "start_time": "2017-09-18T08:52:35Z",
+        "end_time": "2017-09-18T08:53:22Z",
+        "user_comments": "",
+        "settings": {
+          "units": "kg",
+          "rest": 12,
+          "prec": 1,
+          "sets": [{ "HR": 100, "load": 10000, "reps": 10, "update": 0 }]
+        },
+        "results": {
+          "sets": [
+            {
+              "load": 25221,
+              "reps": 5,
+              "update": 0,
+              "avg_hr": 0,
+              "max_hr": 0,
+              "end_hr": 0
+            }
+          ]
+        },
+        "training_activity": 2720
+      }
+    ],
+    "training_saission": 1
+  },
+  {
+    "id": 2990,
+    "login": "2017-12-22T07:49:35.492909Z",
+    "logout": "2017-12-22T09:03:49.954633Z",
+    "comments": "Visit ended by SmartTouch",
+    "user": "Zoran Niemeier",
+    "visit_type": 1,
+    "facility": 3,
+    "training_program": "Test",
+    "results": [
+      {
+        "visit": 2990,
+        "activity": "Twist Left",
+        "start_time": "2017-12-22T08:31:19Z",
+        "end_time": "2017-12-22T08:32:05Z",
+        "user_comments": "",
+        "settings": {
+          "units": "kg",
+          "rest": 12,
+          "prec": 1,
+          "sets": [{ "HR": 100, "load": 10000, "reps": 10, "update": 0 }]
+        },
+        "results": {
+          "sets": [
+            {
+              "load": 0,
+              "reps": 1,
+              "update": 0,
+              "avg_hr": 0,
+              "max_hr": 0,
+              "end_hr": 0
+            }
+          ]
+        },
+        "training_activity": 2720
+      }
+    ],
+    "training_saission": 2
+  },
+  {
+    "id": 2991,
+    "login": "2017-12-22T08:24:43.917045Z",
+    "logout": "2017-12-22T08:52:34.967422Z",
+    "comments": "FCM2: Visit ended by user action.",
+    "user": "Zoran Niemeier",
+    "visit_type": 1,
+    "facility": 3,
+    "training_program": "Test",
+    "results": [
+      {
+        "visit": 2991,
+        "activity": "Twist Left",
+        "start_time": "2017-12-22T08:34:05Z",
+        "end_time": "2017-12-22T08:34:18Z",
+        "user_comments": "",
+        "settings": {
+          "units": "kg",
+          "rest": 12,
+          "prec": 1,
+          "sets": [{ "HR": 100, "load": 10000, "reps": 10, "update": 0 }]
+        },
+        "results": {
+          "sets": [
+            {
+              "load": 0,
+              "reps": 0,
+              "update": 0,
+              "avg_hr": 0,
+              "max_hr": 0,
+              "end_hr": 0
+            }
+          ]
+        },
+        "training_activity": 2720
+      },
+      {
+        "visit": 2991,
+        "activity": "Twist Right",
+        "start_time": "2017-12-22T08:34:23Z",
+        "end_time": "2017-12-22T08:34:44Z",
+        "user_comments": "",
+        "settings": {
+          "units": "kg",
+          "rest": 12,
+          "prec": 1,
+          "sets": [{ "HR": 100, "load": 10000, "reps": 10, "update": 0 }]
+        },
+        "results": {
+          "sets": [
+            {
+              "load": 36,
+              "reps": 0,
+              "update": 0,
+              "avg_hr": 0,
+              "max_hr": 0,
+              "end_hr": 0
+            }
+          ]
+        },
+        "training_activity": 2723
+      }
+    ],
+    "training_saission": 3
+  },
+  {
+    "id": 7345,
+    "login": "2018-06-06T11:05:51.784440Z",
+    "logout": "2018-06-06T12:15:09.737882Z",
+    "comments": "",
+    "user": "Zoran Niemeier",
+    "visit_type": 1,
+    "facility": 3,
+    "training_program": "Test",
+    "results": [
+      {
+        "visit": 7345,
+        "activity": "Pull Down",
+        "start_time": "2018-06-06T11:30:48Z",
+        "end_time": "2018-06-06T11:31:20Z",
+        "user_comments": "",
+        "settings": {
+          "units": "kg",
+          "actuators": [{ "position": 133, "channel": 1 }],
+          "rest": 12,
+          "prec": 1,
+          "sets": [{ "HR": 100, "load": 10000, "reps": 10, "update": "0" }]
+        },
+        "results": {
+          "sets": [
+            {
+              "load": 0.0,
+              "reps": 0.0,
+              "update": "0",
+              "avg_hr": 0.0,
+              "max_hr": 0.0,
+              "end_hr": 0.0
+            }
+          ]
+        },
+        "training_activity": 2721
+      },
+      {
+        "visit": 7345,
+        "activity": "Push Up",
+        "start_time": "2018-06-06T11:35:33Z",
+        "end_time": "2018-06-06T11:36:40Z",
+        "user_comments": "",
+        "settings": {
+          "units": "kg",
+          "actuators": [{ "position": 133, "channel": 1 }],
+          "rest": 12,
+          "prec": 1,
+          "sets": [{ "HR": 100, "load": 10000, "reps": 10, "update": "0" }]
+        },
+        "results": {
+          "sets": [
+            {
+              "load": 10000.0,
+              "reps": 10.0,
+              "update": "0",
+              "avg_hr": 0.0,
+              "max_hr": 0.0,
+              "end_hr": 0.0
+            }
+          ]
+        },
+        "training_activity": 2722
+      }
+    ],
+    "training_saission": 4
+  }
+]
