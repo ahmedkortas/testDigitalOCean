@@ -1,1 +1,1 @@
-web: gunicorn projectGrupepe.wsg --timeout 6000000
+web: gunicorn projectGrupepe.wsg 
