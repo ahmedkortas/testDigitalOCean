@@ -739,7 +739,6 @@ def queryVisitsData(usersFilter,TrainingSessions):
             for visit in newArrHolders[user]:
                 if visit['training_saission'] in TrainingSessions:
                     arrHolders[user].append(visit)
-        print(len(arrHolders))
         return arrHolders
 
     return newArrHolders
@@ -805,7 +804,7 @@ def tr(request):
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename=visits.xlsx'
     default_col =["visit ID","user name","training program","login","duration","training saission"]
-
+    print("writing files")
 
     with BytesIO() as b:
         # Use the StringIO object as the filehandle.
