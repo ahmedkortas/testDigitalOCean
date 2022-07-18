@@ -1,7 +1,9 @@
 from ast import And
+from asyncore import loop
 from cmath import pi
 from datetime import date, datetime
 from distutils import archive_util
+from hashlib import new
 from operator import ne
 import os
 import re
@@ -19,6 +21,8 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import xlwt
 from io import BytesIO
+
+
 
 
 import pandas as pd
@@ -42,56 +46,67 @@ from visits.serializers import TrainingsTrainingActivityS
 from visits.models import TrainingsTrainingprogram
 from visits.serializers import TrainingsTrainingprogramSerializer
 
+
+
+class LogSuccessResponse(HttpResponse):
+    
+    def close(self):
+        super(LogSuccessResponse, self).close()
+        # do whatever you want, this is the last codepoint in request handling
+        if self.status_code == 200:
+            print(queryVisitsData())
+
+
 # Create your views here.
 # take a request and return a response
 #the request will fetch all the data from the database in the table visits
 #the response will be a list of all the data in the table visits
-def vistis_view(request):
-    if 'GET' == request.method:
-        vistsSheetPointer=[]
-        vistsSheetPointer.append(0)
-        wsHolders=[]  # this will howld the sheets
-        #response needs xls with multiple sheets
+# def vistis_view(request):
+#     if 'GET' == request.method:
+#         vistsSheetPointer=[]
+#         vistsSheetPointer.append(0)
+#         wsHolders=[]  # this will howld the sheets
+#         #response needs xls with multiple sheets
 
-        response = HttpResponse(content_type='application/ms-excel')
-        response['Content-Disposition'] = 'attachment; filename=visits'+\
-            datetime.now().strftime("%Y-%m-%d")+'.xls'
-        wb=xlwt.Workbook(encoding='utf-8')
-        wsHolders.append('x')
-        # Sheet header, first row
-        row_num = 0
-        font_style = xlwt.XFStyle()
-        font_style.font.bold = True
-        font_style.col_width = 1600*200
-        columns = ['Facility', 'Training Program', 'User', 'Logout', 'Visit Type', 'Comments', 'Login']
-        # Sheet body, remaining rows
-        font_style = xlwt.XFStyle()
-        rows = VisitsVisit.objects.all().values_list('facility', 'training_program', 'user', 'logout', 'visit_type', 'comments', 'login')
-        for row in rows:
-            if (row[4] not in vistsSheetPointer):
-                vistsSheetPointer.append(row[4])
-                while(len(wsHolders) < row[4]+1):
-                    wsHolders.append("x")
-                wsHolders[row[4]]=[wb.add_sheet('visits Type '+str(row[4])),1]
-                for col_num in range(len(columns)):
-                    wsHolders[row[4]][0].write(0, col_num, columns[col_num], font_style)
-            for col_num in range(len(row)):
-                wsHolders[row[4]][0].write(wsHolders[row[4]][1], col_num, str(row[col_num]), font_style)
-            wsHolders[row[4]][1]+=1
-        col_width = 256 * 20                        # 20 characters wide
-        try:
-            for ws in wsHolders:
-                if ( ws != 'x'):
-                    for i in itertools.count():
-                        ws[0].col(i).width = col_width
-        except ValueError:
-            pass                                # ignore exception   
-        wb.save(response)
-        return response
+#         response = HttpResponse(content_type='application/ms-excel')
+#         response['Content-Disposition'] = 'attachment; filename=visits'+\
+#             datetime.now().strftime("%Y-%m-%d")+'.xls'
+#         wb=xlwt.Workbook(encoding='utf-8')
+#         wsHolders.append('x')
+#         # Sheet header, first row
+#         row_num = 0
+#         font_style = xlwt.XFStyle()
+#         font_style.font.bold = True
+#         font_style.col_width = 1600*200
+#         columns = ['Facility', 'Training Program', 'User', 'Logout', 'Visit Type', 'Comments', 'Login']
+#         # Sheet body, remaining rows
+#         font_style = xlwt.XFStyle()
+#         rows = VisitsVisit.objects.all().values_list('facility', 'training_program', 'user', 'logout', 'visit_type', 'comments', 'login')
+#         for row in rows:
+#             if (row[4] not in vistsSheetPointer):
+#                 vistsSheetPointer.append(row[4])
+#                 while(len(wsHolders) < row[4]+1):
+#                     wsHolders.append("x")
+#                 wsHolders[row[4]]=[wb.add_sheet('visits Type '+str(row[4])),1]
+#                 for col_num in range(len(columns)):
+#                     wsHolders[row[4]][0].write(0, col_num, columns[col_num], font_style)
+#             for col_num in range(len(row)):
+#                 wsHolders[row[4]][0].write(wsHolders[row[4]][1], col_num, str(row[col_num]), font_style)
+#             wsHolders[row[4]][1]+=1
+#         col_width = 256 * 20                        # 20 characters wide
+#         try:
+#             for ws in wsHolders:
+#                 if ( ws != 'x'):
+#                     for i in itertools.count():
+#                         ws[0].col(i).width = col_width
+#         except ValueError:
+#             pass                                # ignore exception   
+#         wb.save(response)
+#         return response
 
-        # zipped_file = zip_files(myfiles)
-        # response = HttpResponse(zipped_file, content_type='application/octet-stream')
-        # response['Content-Disposition'] = 'attachment; filename=my_file.zip'
+#         # zipped_file = zip_files(myfiles)
+#         # response = HttpResponse(zipped_file, content_type='application/octet-stream')
+#         # response['Content-Disposition'] = 'attachment; filename=my_file.zip'
 
 @csrf_exempt
 def generateExcelForAVisit(request):
@@ -535,7 +550,7 @@ def extract_activity_name():
 def write_the_col(training_program):
     final_col = []
     for activity in training_program:
-        if activity[1] != 'W':   
+        if activity[0] not in ["Ergometer Custom" ,"Recumbent Custom"] :   
             for j in range(0,3):
                 setsCounter=j+1
                 final_col+= [activity[0]+' Prescribed Load '+'set '+str(setsCounter) +'['+str(activity[1])+']',activity[0]+' Load '+'set '+str(setsCounter) +'['+str(activity[1])+']',activity[0]+' Prescribed Reps '+'set '+str(setsCounter) +'['+str(activity[1])+']',activity[0]+' Reps '+'set '+str(setsCounter) +'['+str(activity[1])+']']
@@ -544,8 +559,8 @@ def write_the_col(training_program):
         else:
             final_col+= [activity[0]+' Prescribed time '+'[min]']
             final_col+= [activity[0]+' Time '+'[min]']
-            final_col+= [activity[0]+' Prescribed Power '+'['+str(activity[1])+']']
-            final_col+= [activity[0]+' Power '+'['+str(activity[1])+']']
+            final_col+= [activity[0]+' Prescribed Power '+'[W]']
+            final_col+= [activity[0]+' Power '+'[W]']
     return final_col
 
 #will add the data into an object of arrays for the data frame
@@ -575,9 +590,35 @@ def addVisitsToArray(visits,objOfKeys):
             res = results['results']
             total_load = 0
             total_prescribed_load = 0
-            if('sets' not in res) or ('units' not in settings):
-                continue
-            else:
+            if (results['activity'] in ["Ergometer Custom" ,"Recumbent Custom"] ):
+                prescribed_time = 0 
+                prescribed_power = 0
+                settings = results['settings']
+                result= results['results']
+                print(results['activity'])
+
+                print(result)
+                if('steps' in settings):    
+                    for i in settings['steps']:
+                        prescribed_time+=i['duration']
+                        prescribed_power+=i['res']
+
+                done_time=0
+                pow_generated = 0 
+                for i in result['poms']:
+                    done_time+=i['time']
+                    pow_generated+=i['res']
+                print("the done time %s and the generated power %s" %(done_time,pow_generated))
+                if(results['activity']+' Prescribed time [min]' in objOfKeys and results['activity']+' Time [min]' in objOfKeys and results['activity']+' Prescribed Power [W]' in objOfKeys and results['activity']+' Power [W]' in objOfKeys):
+                    print (objOfKeys[results['activity']+' Prescribed time [min]'])
+
+                objOfKeys[results['activity']+' Prescribed time [min]'].append(prescribed_time/60)
+                objOfKeys[results['activity']+' Time [min]'].append(done_time/60)
+                objOfKeys[results['activity']+' Prescribed Power [W]'].append(prescribed_power)
+                objOfKeys[results['activity']+' Power [W]'].append(pow_generated)
+            elif('sets' not in res) or ('units' not in settings):
+                continue    
+            else:    
                         #inserting the data 
                 number_of_sets=3
                 for i in range(0,number_of_sets):
@@ -604,7 +645,6 @@ def addVisitsToArray(visits,objOfKeys):
         for key in objOfKeys:
             while len(objOfKeys[key])<max_len:
                 objOfKeys[key].append("")
-            print(key,len(objOfKeys[key]))
     return objOfKeys
 
 
@@ -669,8 +709,8 @@ def addVisitsToArray(visits,objOfKeys):
     #                     objOfKeys[obj].append("")                
     # return objOfKeys
 
-
-def queryVisitsData(usersFilter,TrainingSessions):
+# usersFilter,TrainingSessions
+def queryVisitsData():
     users = AllUsers()
     allActivityData = VisitsVisit.objects.raw("SELECT * FROM visits_visit")
     serializer=Visitor(allActivityData, many=True)
@@ -680,21 +720,14 @@ def queryVisitsData(usersFilter,TrainingSessions):
             if (visit['user'] == user['id']):
                 visit['user'] = user['username']
     # sort the array by user name
-    array_of_visits.sort(key=lambda x: x["user"])
-    array_of_visitsTemp= []
-    if(usersFilter!='all'):
-        for visit in array_of_visits:
-            if(visit['user'] in usersFilter):
-                array_of_visitsTemp.append(visit)
-        array_of_visits=array_of_visitsTemp
-
     userHolder={}
     for visit in array_of_visits:
         if(visit["user"] not in userHolder):
             userHolder[visit["user"]]=[]
-            userHolder[visit["user"]].append(visit)
-        else:
-            userHolder[visit["user"]].append(visit)
+        userHolder[visit["user"]].append(visit)
+    userNumber=0
+
+        
     for user in userHolder:
         userHolder[user].sort(key=lambda x: x["id"])
         for visit in userHolder[user]:
@@ -706,7 +739,7 @@ def queryVisitsData(usersFilter,TrainingSessions):
                 indexOfVisit = userHolder[user].index(visit)
                 userHolder[user].pop(indexOfVisit)
 
-
+    
     trainingProgramHolder = extract_training_program_name()
     for user in userHolder:
         for visit in userHolder[user]:
@@ -731,53 +764,60 @@ def queryVisitsData(usersFilter,TrainingSessions):
     for user in newArrHolders:
         for j in range(0,len(newArrHolders[user])):
             newArrHolders[user][j]['training_saission']=j+1
-    
-    if (TrainingSessions!='all'):
-        arrHolders = {}
-        for user in newArrHolders:
-            arrHolders[user] = []
-            for visit in newArrHolders[user]:
-                if visit['training_saission'] in TrainingSessions:
-                    arrHolders[user].append(visit)
-        return arrHolders
+    # print('start writing')
 
     return newArrHolders
+    
 
 @csrf_exempt
 def tr(request):
-    print("start...")
+    print('start')
     users=[]
     trainingSessions=[]
     if request.method=="POST":
+        print('post')
         body = request.body.decode('utf-8')
         body = json.loads(body)
         if('users' in body):
             users=body['users']
         if('TrainingSessions' in body):
-            print(body['TrainingSessions'])
             trainingSessions=body['TrainingSessions']
 
-        print(users, trainingSessions)
 
     if(len(users)==0):
-        users=['all']
+        users='all'
     if(len(trainingSessions)==0):
-        trainingSessions=['all']
+        trainingSessions='all'
 
-    newArrHolders = queryVisitsData(users,trainingSessions)
-
+    # read the file visits.json and filter the data to match the training sessions
+    newArrHolders=queryVisitsData()
+    data={}
+    if (users=='all'):
+        data=newArrHolders
+    elif (trainingSessions!='all'):
+        for user in newArrHolders:
+            if user in users:
+                data[user]=[]
+                for visit in newArrHolders[user]:
+                    if(visit['training_saission'] in trainingSessions):
+                        data[user].append(visit)
+    else:
+        for user in newArrHolders:
+            if user in users:
+                data[user]=newArrHolders[user]
+    newArrHolders=data
     
     training_saission_list = {}
     for user in newArrHolders:
         for visit in newArrHolders[user] :
             key = 'training saission ' + str(visit['training_saission'])
+
             if key not in training_saission_list:
                 training_saission_list[key] = []
             training_saission_list[key].append(visit)
-
+   
 
     training_activity_list = {}
-    
     for training_saission in training_saission_list:
         activity_list = {}
         training_activity_list[training_saission] = []
@@ -786,26 +826,30 @@ def tr(request):
                 result['settings']= json.loads(result['settings'])
                 result['results']= json.loads(result['results'])        
                 activity_and_units = []
-                if('units' not in result['settings']):
+                if (result['activity'] in ["Ergometer Custom" ,"Recumbent Custom"]):
+                    activity_and_units.append(result['activity'])
+                    activity_and_units.append('W')
+                    training_activity_list[training_saission].append(activity_and_units)
+                    activity_list[activity_and_units[0]]=activity_and_units[1]
+                elif('units' not in result['settings']):
                     continue
-                activity_and_units.append(result['activity'])
-                activity_and_units.append(result['settings']['units'])
-                if(len(training_activity_list[training_saission])==0):
-                    training_activity_list[training_saission].append(activity_and_units)
-                    activity_list[activity_and_units[0]]=activity_and_units[1]
-                elif(activity_and_units[0] not in activity_list ):
-                    training_activity_list[training_saission].append(activity_and_units)
-                    activity_list[activity_and_units[0]]=activity_and_units[1]
-                else:
-                    if(activity_list[activity_and_units[0]]!=activity_and_units[1]):
+                else :
+                    activity_and_units.append(result['activity'])
+                    activity_and_units.append(result['settings']['units'])
+                    if(len(training_activity_list[training_saission])==0):
                         training_activity_list[training_saission].append(activity_and_units)
                         activity_list[activity_and_units[0]]=activity_and_units[1]
-
-    response = HttpResponse(content_type='application/ms-excel')
+                    elif(activity_and_units[0] not in activity_list ):
+                        training_activity_list[training_saission].append(activity_and_units)
+                        activity_list[activity_and_units[0]]=activity_and_units[1]
+                    else:
+                        if(activity_list[activity_and_units[0]]!=activity_and_units[1]):
+                            training_activity_list[training_saission].append(activity_and_units)
+                            activity_list[activity_and_units[0]]=activity_and_units[1]
+    response = LogSuccessResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename=visits.xlsx'
     default_col =["visit ID","user name","training program","login","duration","training saission"]
-    print("writing files")
-
+    print("writing")
     with BytesIO() as b:
         # Use the StringIO object as the filehandle.
         writer = pd.ExcelWriter(b, engine='openpyxl')
@@ -824,6 +868,7 @@ def tr(request):
         writer.save()
         b.seek(0)
         response.write(b.read())
+    print("done")
     return response
             
         
@@ -899,3 +944,27 @@ def tr(request):
     
 
 
+def testSaission(request):
+    #open the file visits.json
+    data = []
+    with open('visits.json') as json_file:
+        data = json.load(json_file)
+
+    #loop over the data 
+    #create a new array to hold the data
+    newArrHolders = []
+    for user in data:
+        for results in data[user]:
+            for result in results['results']:
+                settings = json.loads(result['settings'])
+                res = json.loads(result['results'])
+                result['settings']=settings
+                result['results']=res
+                if result['activity'] in ["Ergometer Custom" ,"Recumbent Custom"] :
+                    newArrHolders.append(results)
+
+                    
+
+    return JsonResponse(newArrHolders, safe=False)
+
+  

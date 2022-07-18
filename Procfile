@@ -1,1 +1,1 @@
-web: gunicorn ./projectGrupepe/wsgi.py --timeout 900
+web: gunicorn projectGrupepe.wsgi 
